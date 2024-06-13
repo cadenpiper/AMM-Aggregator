@@ -8,7 +8,13 @@ import { ethers } from 'ethers'
 import Navigation from './Navigation';
 import Loading from './Loading';
 
-import { loadProvider, loadNetwork, loadAccount, loadTokens } from '../store/interactions'
+import {
+  loadProvider,
+  loadNetwork,
+  loadAccount,
+  loadTokens,
+  loadAggregator
+} from '../store/interactions'
 
 function App() {
   const dispatch = useDispatch()
@@ -24,6 +30,7 @@ function App() {
 
     // Initate contracts
     await loadTokens(provider, chainId, dispatch)
+    await loadAggregator(provider, chainId, dispatch)
   }
 
   useEffect(() => {
