@@ -10,10 +10,13 @@ export const aggregator = createSlice({
 	reducers: {
 		setContract: (state, action) => {
 			state.contract = action.payload	
+		},
+		sharesLoaded: (state, action) => {
+			state.shares = action.payload
 		}
 	}
 })
 
-export const { setContract } = aggregator.actions;
+export const { setContract, sharesLoaded } = aggregator.actions;
 
 export default aggregator.reducer;
