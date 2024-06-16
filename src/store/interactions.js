@@ -65,12 +65,3 @@ export const loadBalances = async (aggregator, tokens, account, dispatch) => {
 	const shares = await aggregator.shares(account)
 	dispatch(sharesLoaded(ethers.utils.formatUnits(shares.toString(), 'ether')))
 }
-
-
-
-
-
-
-
-
-
