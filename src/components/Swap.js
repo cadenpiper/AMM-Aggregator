@@ -17,7 +17,11 @@ const Swap = () => {
   const [outputAmount, setOutputAmount] = useState(0)
 
   const account = useSelector(state => state.provider.account)
+
   const tokens = useSelector(state => state.tokens.contracts)
+  const symbols = useSelector(state => state.tokens.symbols)
+  const balances = useSelector(state => state.tokens.balances)
+
   const aggregator = useSelector(state => state.aggregator.contract)
 
   const inputHandler = async (e) => {
@@ -79,7 +83,13 @@ const Swap = () => {
               <div className='d-flex justify-content-between'>
                 <Form.Label><strong>Input:</strong></Form.Label>
                 <Form.Text muted>
-                  Balance:
+                  Balance: {
+                    inputToken === symbols[0] ? (
+                      balances[0]
+                    ) : inputToken === symbols[1] ? (
+                      balances[1]
+                    ) : 0
+                  }
                 </Form.Text>
               </div>
               <InputGroup>
@@ -95,8 +105,8 @@ const Swap = () => {
                   variant="outline-secondary"
                   title={inputToken ? inputToken : "Select Token"}
                 >
-                  <Dropdown.Item onClick={(e) => setInputToken(e.target.innerHTML)} >Token1</Dropdown.Item>
-                  <Dropdown.Item onClick={(e) => setInputToken(e.target.innerHTML)} >Token2</Dropdown.Item>
+                  <Dropdown.Item onClick={(e) => setInputToken(e.target.innerHTML)} >TKN1</Dropdown.Item>
+                  <Dropdown.Item onClick={(e) => setInputToken(e.target.innerHTML)} >TKN2</Dropdown.Item>
                 </DropdownButton>
               </InputGroup>
             </Row>
@@ -105,7 +115,13 @@ const Swap = () => {
               <div className='d-flex justify-content-between'>
                 <Form.Label><strong>Output:</strong></Form.Label>
                 <Form.Text muted>
-                  Balance:
+                  Balance: {
+                    outputToken === symbols[0] ? (
+                      balances[0]
+                    ) : outputToken === symbols[1] ? (
+                      balances[1]
+                    ) : 0
+                  }
                 </Form.Text>
               </div>
               <InputGroup>
@@ -119,8 +135,8 @@ const Swap = () => {
                   variant="outline-secondary"
                   title={outputToken ? outputToken : "Select Token"}
                 >
-                  <Dropdown.Item onClick={(e) => setOutputToken(e.target.innerHTML)} >Token1</Dropdown.Item>
-                  <Dropdown.Item onClick={(e) => setOutputToken(e.target.innerHTML)} >Token2</Dropdown.Item>
+                  <Dropdown.Item onClick={(e) => setOutputToken(e.target.innerHTML)} >TKN1</Dropdown.Item>
+                  <Dropdown.Item onClick={(e) => setOutputToken(e.target.innerHTML)} >TKN2</Dropdown.Item>
                 </DropdownButton>
               </InputGroup>
             </Row>
