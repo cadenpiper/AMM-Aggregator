@@ -2,7 +2,8 @@ import { ethers } from 'ethers'
 
 import { setProvider, setNetwork, setAccount } from './reducers/provider'
 import { setContracts, setSymbols, balancesLoaded } from './reducers/tokens'
-import { setContract, sharesLoaded } from './reducers/aggregator'
+import { setAmmContracts, sharesLoadedAmm, setBalances } from './reducers/amms'
+import { setContract, sharesLoaded, swapRequest, swapSuccess } from './reducers/aggregator'
 
 import TOKEN_ABI from '../abis/Token.json';
 import AMM_ABI from '../abis/AMM.json';
@@ -42,6 +43,24 @@ export const loadTokens = async (provider, chainId, dispatch) => {
 	dispatch(setSymbols([await token1.symbol(), await token2.symbol()]))
 }
 
+export const loadAmms = async (provider, chainId, dispatch) => {
+	const amm1 = new ethers.Contract(config[chainId].amm1.address, AMM_ABI, provider)
+	const amm2 = new ethers.Contract(config[chainId].amm2.address, AMM_ABI, provider)
+
+	const balance1 = await amm1.token1Balance()
+	const balance2 = await amm1.token2Balance()
+	const balance3 = await amm2.token1Balance()
+	const balance4 = await amm2.token2Balance()
+
+	dispatch(setAmmContracts([amm1, amm2]))
+	dispatch(setBalances([
+		ethers.utils.formatUnits(balance1.toString(), 'ether'),
+		ethers.utils.formatUnits(balance2.toString(), 'ether'),
+		ethers.utils.formatUnits(balance3.toString(), 'ether'),
+		ethers.utils.formatUnits(balance4.toString(), 'ether')
+	]))
+}
+
 export const loadAggregator = async (provider, chainId, dispatch) => {
 	const aggregator = new ethers.Contract(config[chainId].aggregator.address, AGGREGATOR_ABI, provider)
 
@@ -64,4 +83,30 @@ export const loadBalances = async (aggregator, tokens, account, dispatch) => {
 
 	const shares = await aggregator.shares(account)
 	dispatch(sharesLoaded(ethers.utils.formatUnits(shares.toString(), 'ether')))
+
+	// Load amm balances and shares
+}
+
+// -----------------------------
+// Swap
+
+export const swap = async (provider, aggregator, token, symbol, amount, dispatch) => {
+	dispatch(swapRequest())
+
+	let transaction
+
+	const signer = await provider.getSigner()
+
+	transaction = await token.connect(signer).approve(aggregator.address, amount)
+	await transaction.wait()
+
+	if (symbol === "TKN1") {
+		transaction = await aggregator.connect(signer).executeSwapToken1(amount)
+	} else {
+		transaction = await aggregator.connect(signer).executeSwapToken2(amount)
+	}
+
+	await transaction.wait()
+
+	dispatch(swapSuccess(transaction.hash))
 }

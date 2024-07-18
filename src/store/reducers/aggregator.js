@@ -5,7 +5,12 @@ export const aggregator = createSlice({
 	initialState: {
 		contract: null,
 		shares: 0,
-		swaps: []
+		swaps: [],
+		swapping: {
+			isSwapping: false,
+			isSuccess: false,
+			transactionHash: null
+		}
 	},
 	reducers: {
 		setContract: (state, action) => {
@@ -13,10 +18,20 @@ export const aggregator = createSlice({
 		},
 		sharesLoaded: (state, action) => {
 			state.shares = action.payload
+		},
+		swapRequest: (state, action) => {
+			state.swapping.isSwapping = true
+			state.swapping.isSuccess = false
+			state.swapping.transactionHash = null
+		},
+		swapSuccess: (state, action) => {
+			state.swapping.isSwapping = false
+			state.swapping.isSuccess = true
+			state.swapping.transactionHash = action.payload
 		}
 	}
 })
 
-export const { setContract, sharesLoaded } = aggregator.actions;
+export const { setContract, sharesLoaded, swapRequest, swapSuccess } = aggregator.actions;
 
 export default aggregator.reducer;

@@ -16,6 +16,7 @@ import {
   loadNetwork,
   loadAccount,
   loadTokens,
+  loadAmms,
   loadAggregator
 } from '../store/interactions'
 
@@ -41,6 +42,7 @@ function App() {
 
     // Initate contracts
     await loadTokens(provider, chainId, dispatch)
+    await loadAmms(provider, chainId, dispatch)
     await loadAggregator(provider, chainId, dispatch)
   }
 
