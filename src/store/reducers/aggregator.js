@@ -28,10 +28,15 @@ export const aggregator = createSlice({
 			state.swapping.isSwapping = false
 			state.swapping.isSuccess = true
 			state.swapping.transactionHash = action.payload
+		},
+		swapFail: (state, action) => {
+			state.swapping.isSwapping = false
+			state.swapping.isSuccess = false
+			state.swapping.transactionHash = null
 		}
 	}
 })
 
-export const { setContract, sharesLoaded, swapRequest, swapSuccess } = aggregator.actions;
+export const { setContract, sharesLoaded, swapRequest, swapSuccess, swapFail } = aggregator.actions;
 
 export default aggregator.reducer;

@@ -10,6 +10,8 @@ import Row from 'react-bootstrap/Row'
 import Spinner from 'react-bootstrap/Spinner'
 import { ethers } from 'ethers'
 
+import Alert from './Alert'
+
 import { swap, loadBalances } from '../store/interactions'
 
 const Swap = () => {
@@ -19,6 +21,8 @@ const Swap = () => {
   const [outputAmount, setOutputAmount] = useState(0)
 
   const [price, setPrice] = useState(0)
+
+  const [showAlert, setShowAlert] = useState(false)
 
   const provider = useSelector(state => state.provider.connection)
   const account = useSelector(state => state.provider.account)
@@ -31,6 +35,8 @@ const Swap = () => {
   const amms = useSelector(state => state.amms.ammContracts)
   
   const isSwapping = useSelector(state => state.aggregator.swapping.isSwapping)
+  const isSuccess = useSelector(state => state.aggregator.swapping.isSuccess)
+  const transactionHash = useSelector(state => state.aggregator.swapping.transactionHash)
 
   const dispatch = useDispatch()
 
@@ -68,6 +74,8 @@ const Swap = () => {
   const swapHandler = async (e) => {
     e.preventDefault()
 
+    setShowAlert(false)
+
     if (inputToken === outputToken) {
       window.alert('Invalid Token Pair')
       return
@@ -83,6 +91,8 @@ const Swap = () => {
 
     await loadBalances(aggregator, tokens, account, dispatch)
     await getPrice()
+
+    setShowAlert(true)
   }
 
   const getPrice = async () => {
@@ -206,6 +216,32 @@ const Swap = () => {
           </p>
         )}
       </Card>
+
+      {isSwapping ? (
+        <Alert 
+          message={'Swap Pending...'}
+          transactionHash={null}
+          variant={'info'}
+          setShowAlert={setShowAlert}
+        />
+      ) : isSuccess && showAlert ? (
+        <Alert 
+          message={'Swap Successful'}
+          transactionHash={transactionHash}
+          variant={'success'}
+          setShowAlert={setShowAlert}
+        />
+      ) : !isSuccess && showAlert ? (
+        <Alert 
+          message={'Swap Failed'}
+          transactionHash={null}
+          variant={'danger'}
+          setShowAlert={setShowAlert}
+        />
+      ) : (
+        <></>
+      )}
+
     </div>
   );
 }

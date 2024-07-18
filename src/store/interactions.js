@@ -3,7 +3,7 @@ import { ethers } from 'ethers'
 import { setProvider, setNetwork, setAccount } from './reducers/provider'
 import { setContracts, setSymbols, balancesLoaded } from './reducers/tokens'
 import { setAmmContracts, sharesLoadedAmm, setBalances } from './reducers/amms'
-import { setContract, sharesLoaded, swapRequest, swapSuccess } from './reducers/aggregator'
+import { setContract, sharesLoaded, swapRequest, swapSuccess, swapFail } from './reducers/aggregator'
 
 import TOKEN_ABI from '../abis/Token.json';
 import AMM_ABI from '../abis/AMM.json';
@@ -91,22 +91,29 @@ export const loadBalances = async (aggregator, tokens, account, dispatch) => {
 // Swap
 
 export const swap = async (provider, aggregator, token, symbol, amount, dispatch) => {
-	dispatch(swapRequest())
+	try {
 
-	let transaction
+		dispatch(swapRequest())
 
-	const signer = await provider.getSigner()
+		let transaction
 
-	transaction = await token.connect(signer).approve(aggregator.address, amount)
-	await transaction.wait()
+		const signer = await provider.getSigner()
 
-	if (symbol === "TKN1") {
-		transaction = await aggregator.connect(signer).executeSwapToken1(amount)
-	} else {
-		transaction = await aggregator.connect(signer).executeSwapToken2(amount)
+		transaction = await token.connect(signer).approve(aggregator.address, amount)
+		await transaction.wait()
+
+		if (symbol === "TKN1") {
+			transaction = await aggregator.connect(signer).executeSwapToken1(amount)
+		} else {
+			transaction = await aggregator.connect(signer).executeSwapToken2(amount)
+		}
+
+		await transaction.wait()
+
+		dispatch(swapSuccess(transaction.hash))
+
+	} catch (error) {
+
+		dispatch(swapFail())
 	}
-
-	await transaction.wait()
-
-	dispatch(swapSuccess(transaction.hash))
 }
