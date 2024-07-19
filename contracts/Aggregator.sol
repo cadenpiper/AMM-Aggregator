@@ -18,6 +18,9 @@ contract Aggregator is ReentrancyGuard {
     uint256 public token2Balance;
     uint256 public K;
 
+    mapping(address => uint256) public userDeposits;
+    uint256 public totalValueDeposited;
+
     uint256 public totalShares;
     mapping(address => uint256) public shares;
     uint256 constant PRECISION = 10**18;
@@ -66,11 +69,18 @@ contract Aggregator is ReentrancyGuard {
         token2Amount = (token2Balance * _token1Amount) / token1Balance;
     }
 
+    function _recordDeposit(address _user, uint256 _token1Amount, uint256 _token2Amount) internal {
+    	uint256 totalDepositAmount = _token1Amount + _token2Amount;
+
+    	userDeposits[_user] += totalDepositAmount;
+    	totalValueDeposited += totalDepositAmount;
+    }
+
     function addLiquidity(uint256 _token1Amount, uint256 _token2Amount)
     	external
     	nonReentrant
     {
-        // Deposit Tokens
+        // Deposit tokens
         require(
             token1.transferFrom(msg.sender, address(this), _token1Amount),
             "failed to transfer token 1"
@@ -79,6 +89,9 @@ contract Aggregator is ReentrancyGuard {
             token2.transferFrom(msg.sender, address(this), _token2Amount),
             "failed to transfer token 2"
         );
+
+        // Record users deposit
+        _recordDeposit(msg.sender, _token1Amount, _token2Amount);
 
         // Issue Shares
         uint256 share;

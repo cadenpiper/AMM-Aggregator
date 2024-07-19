@@ -152,6 +152,18 @@ describe('Aggregator', () => {
 			expect(await aggregator.shares(liquidityProvider.address)).to.equal(tokens(100))
 			expect(await aggregator.shares(investor1.address)).to.equal(tokens(50))
 		})
+
+		it('records the deposits', async () => {
+			const depositAmountBefore = await aggregator.userDeposits(liquidityProvider.address)
+
+			// Liquidity provider adds liquidity
+			transaction = await aggregator.connect(liquidityProvider).addLiquidity(tokens(500), tokens(500))
+			await transaction.wait()
+
+			const depositAmountAfter = await aggregator.userDeposits(liquidityProvider.address)
+
+			expect(depositAmountBefore).to.be.lt(depositAmountAfter)
+		})
 	})
 
 	describe('Removing Liquidity', () => {
