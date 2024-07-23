@@ -155,14 +155,17 @@ describe('Aggregator', () => {
 
 		it('records the deposits', async () => {
 			const depositAmountBefore = await aggregator.userDeposits(liquidityProvider.address)
+			const totalValueBefore = await aggregator.totalValueDeposited()
 
 			// Liquidity provider adds liquidity
 			transaction = await aggregator.connect(liquidityProvider).addLiquidity(tokens(500), tokens(500))
 			await transaction.wait()
 
 			const depositAmountAfter = await aggregator.userDeposits(liquidityProvider.address)
+			const totalValueAfter = await aggregator.totalValueDeposited()
 
 			expect(depositAmountBefore).to.be.lt(depositAmountAfter)
+			expect(totalValueBefore).to.be.lt(totalValueAfter)
 		})
 	})
 
@@ -190,27 +193,33 @@ describe('Aggregator', () => {
 		})
 
 		it('removes liquidity', async () => {
-			// Liquidity provider and aggregator balances before removing liquidity
+			// Liquidity provider and amm balances before removing liquidity
 			const balanceToken1Before = await token1.balanceOf(liquidityProvider.address)
 			const balanceToken2Before = await token2.balanceOf(liquidityProvider.address)
 
-			const aggregatorToken1Before = await token1.balanceOf(aggregator.address)
-			const aggregatorToken2Before = await token2.balanceOf(aggregator.address)
+			const amm1BalanceToken1Before = await amm1.token1Balance()
+			const amm1BalanceToken2Before = await amm1.token2Balance()
+			const amm2BalanceToken1Before = await amm1.token1Balance()
+			const amm2BalanceToken2Before = await amm2.token2Balance()
 
 			// Remove liquidity
-			const result = await aggregator.connect(liquidityProvider).removeLiquidity(tokens(50))
+			const result = await aggregator.connect(liquidityProvider).removeLiquidity(tokens(20))
 
-			// Liquidity provider and aggregator balances after removing liquidity
+			// Liquidity provider and amm balances after removing liquidity
 			const balanceToken1After = await token1.balanceOf(liquidityProvider.address)
 			const balanceToken2After = await token2.balanceOf(liquidityProvider.address)
 
-			const aggregatorToken1After = await token1.balanceOf(aggregator.address)
-			const aggregatorToken2After = await token2.balanceOf(aggregator.address)
+			const amm1BalanceToken1After = await amm1.token1Balance()
+			const amm1BalanceToken2After = await amm1.token2Balance()
+			const amm2BalanceToken1After = await amm1.token1Balance()
+			const amm2BalanceToken2After = await amm2.token2Balance()
 
-			expect(balanceToken1After).to.be.gt(balanceToken1Before)
-			expect(balanceToken2After).to.be.gt(balanceToken2Before)
-			expect(aggregatorToken1Before).to.be.gt(aggregatorToken1After)
-			expect(aggregatorToken2Before).to.be.gt(aggregatorToken2After)
+			expect(balanceToken1Before).to.be.lt(balanceToken1After)
+			expect(balanceToken2Before).to.be.lt(balanceToken2After)
+			expect(amm1BalanceToken1After).to.be.lt(amm1BalanceToken1Before)
+			expect(amm1BalanceToken2After).to.be.lt(amm1BalanceToken2Before)
+			expect(amm2BalanceToken1After).to.be.lt(amm2BalanceToken1Before)
+			expect(amm2BalanceToken2After).to.be.lt(amm2BalanceToken2Before)
 		})
 	})
 

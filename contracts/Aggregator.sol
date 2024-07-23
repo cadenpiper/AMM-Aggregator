@@ -76,6 +76,19 @@ contract Aggregator is ReentrancyGuard {
     	totalValueDeposited += totalDepositAmount;
     }
 
+    function _disperseLiquidity(uint256 _token1Amount, uint256 _token2Amount) internal {
+    	uint256 dispersedToken1Amount = _token1Amount / 2;
+    	uint256 dispersedToken2Amount = _token2Amount / 2;
+
+    	token1.approve(address(amm1), dispersedToken1Amount);
+    	token2.approve(address(amm1), dispersedToken2Amount);
+    	token1.approve(address(amm2), dispersedToken1Amount);
+    	token2.approve(address(amm2), dispersedToken2Amount);
+
+    	amm1.addLiquidity(dispersedToken1Amount, dispersedToken2Amount);
+    	amm2.addLiquidity(dispersedToken1Amount, dispersedToken2Amount);
+    }
+
     function addLiquidity(uint256 _token1Amount, uint256 _token2Amount)
     	external
     	nonReentrant
@@ -92,6 +105,9 @@ contract Aggregator is ReentrancyGuard {
 
         // Record users deposit
         _recordDeposit(msg.sender, _token1Amount, _token2Amount);
+
+        // Disperse liquidity to amms
+        _disperseLiquidity(_token1Amount, _token2Amount);
 
         // Issue Shares
         uint256 share;
@@ -126,8 +142,25 @@ contract Aggregator is ReentrancyGuard {
         returns(uint256 token1Amount, uint256 token2Amount)
     {
         require(_share <= totalShares, "Must be less than total shares");
-        token1Amount = (_share * token1Balance) / totalShares;
-        token2Amount = (_share * token2Balance) / totalShares;
+
+        uint256 shareAmm1 = (_share * amm1.totalShares() / totalShares);
+    	uint256 shareAmm2 = (_share * amm2.totalShares() / totalShares);
+
+        token1Amount = (shareAmm1 * token1Balance) / totalShares;
+        token2Amount = (shareAmm2 * token2Balance) / totalShares;
+    }
+
+    function _recollectLiquidity(uint256 _share) internal {
+
+    	// Withdraw proportionate shares from both AMMs
+    	uint256 shareAmm1 = (_share * amm1.totalShares() / totalShares);
+    	uint256 shareAmm2 = (_share * amm2.totalShares() / totalShares);
+
+    	(uint256 token1AmountAmm1, uint256 token2AmountAmm1) = amm1.removeLiquidity(shareAmm1);
+    	(uint256 token1AmountAmm2, uint256 token2AmountAmm2) = amm2.removeLiquidity(shareAmm2);
+
+    	token1Balance -= (token1AmountAmm1 + token1AmountAmm2);
+    	token2Balance -= (token2AmountAmm1 + token2AmountAmm2);
     }
 
     // Removes liquidity from the pool
@@ -142,6 +175,8 @@ contract Aggregator is ReentrancyGuard {
         );
 
         (token1Amount, token2Amount) = calculateWithdrawalAmount(_share);
+
+        _recollectLiquidity(_share);
 
         shares[msg.sender] -= _share;
         totalShares -= _share;
