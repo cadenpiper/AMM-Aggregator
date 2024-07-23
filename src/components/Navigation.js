@@ -4,6 +4,7 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Blockies from 'react-blockies';
 
+import '../styles.css'
 import logo from '../logo.png';
 
 import { loadAccount, loadBalances } from '../store/interactions';
@@ -39,7 +40,7 @@ const Navigation = () => {
         height="40"
         className="d-inline-block align-top mx-3"
       />
-      <Navbar.Brand href="#">Aggregator</Navbar.Brand>
+      <Navbar.Brand href="#" className="navbar-brand-custom">Aggregator</Navbar.Brand>
       <Navbar.Toggle ario-controls="nav" />
       <Navbar.Collapse id="nav" className="justify-content-end">
 
@@ -49,6 +50,7 @@ const Navigation = () => {
             aria-label="Network Selector"
             value={config[chainId] ? `0x${chainId.toString(16)}` : `0`}
             onChange={networkHandler}
+            className="network-selector"
             style={{ maxWidth: '200px', marginRight: '20px' }}
           >
             <option value="0" disabled>Select Network</option>
@@ -57,7 +59,7 @@ const Navigation = () => {
           </Form.Select>
 
           {account ? (
-            <Navbar.Text className='d-flex align-items-center'>
+            <Navbar.Text className='d-flex align-items-center navbar-text-custom'>
               {account.slice(0, 5) + '...' + account.slice(37, 42)}
               <Blockies 
                 seed={account}

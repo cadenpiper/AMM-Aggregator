@@ -4,6 +4,8 @@ import { HashRouter, Routes, Route } from 'react-router-dom'
 import { Container } from 'react-bootstrap'
 import { ethers } from 'ethers'
 
+import '../styles.css'
+
 // Components
 import Navigation from './Navigation'
 import Tabs from './Tabs'

@@ -10,6 +10,7 @@ import Row from 'react-bootstrap/Row'
 import Spinner from 'react-bootstrap/Spinner'
 import { ethers } from 'ethers'
 
+import '../styles.css'
 import Alert from './Alert'
 
 import { swap, loadBalances } from '../store/interactions'
@@ -51,19 +52,18 @@ const Swap = () => {
       return
     }
 
-    if (inputToken === 'TKN1') {
-      setInputAmount(e.target.value)
+    const value = e.target.value
+    setInputAmount(value)
 
-      const _token1Amount = ethers.utils.parseUnits(e.target.value, 'ether')
+    if (inputToken === 'TKN1') {
+      const _token1Amount = ethers.utils.parseUnits(value, 'ether')
       const [result, address] = await aggregator.getBestToken1Price(_token1Amount)
       const _token2Amount = ethers.utils.formatUnits(result.toString(), 'ether')
 
       setOutputAmount(_token2Amount.toString())
 
     } else {
-      setInputAmount(e.target.value)
-
-      const _token2Amount = ethers.utils.parseUnits(e.target.value, 'ether')
+      const _token2Amount = ethers.utils.parseUnits(value, 'ether')
       const [result, address] = await aggregator.getBestToken2Price(_token2Amount)
       const _token1Amount = ethers.utils.formatUnits(result.toString(), 'ether')
 
@@ -128,14 +128,14 @@ const Swap = () => {
   }, [inputToken, outputToken]);
 
   return(
-    <div>
-      <Card style={{ maxWidth: '450px' }} className='mx-auto px-4'>
+    <div className="swap-container">
+      <Card style={{ maxWidth: '450px' }} className='mx-auto px-4 swap-card'>
         {account ? (
           <Form onSubmit={swapHandler} style={{ maxWidth: '450px', margin: '50px auto' }}>
             <Row className='my-3'>
               <div className='d-flex justify-content-between'>
-                <Form.Label><strong>Input:</strong></Form.Label>
-                <Form.Text muted>
+                <Form.Label className="form-label"><strong>Input:</strong></Form.Label>
+                <Form.Text className="form-text-muted">
                   Balance: {
                     inputToken === symbols[0] ? (
                       balances[0]
@@ -153,10 +153,12 @@ const Swap = () => {
                   step="any"
                   onChange={(e) => inputHandler(e)}
                   disabled={!inputToken}
+                  className="form-control-custom"
                 />
                 <DropdownButton
                   variant="outline-secondary"
                   title={inputToken ? inputToken : "Select Token"}
+                  className="dropdown-button-custom"
                 >
                   <Dropdown.Item onClick={(e) => setInputToken(e.target.innerHTML)} >TKN1</Dropdown.Item>
                   <Dropdown.Item onClick={(e) => setInputToken(e.target.innerHTML)} >TKN2</Dropdown.Item>
@@ -166,8 +168,8 @@ const Swap = () => {
 
             <Row className='my-4'>
               <div className='d-flex justify-content-between'>
-                <Form.Label><strong>Output:</strong></Form.Label>
-                <Form.Text muted>
+                <Form.Label className="form-label"><strong>Output:</strong></Form.Label>
+                <Form.Text className="form-text-muted">
                   Balance: {
                     outputToken === symbols[0] ? (
                       balances[0]
@@ -187,6 +189,7 @@ const Swap = () => {
                 <DropdownButton
                   variant="outline-secondary"
                   title={outputToken ? outputToken : "Select Token"}
+                  className="dropdown-button-custom"
                 >
                   <Dropdown.Item onClick={(e) => setOutputToken(e.target.innerHTML)} >TKN1</Dropdown.Item>
                   <Dropdown.Item onClick={(e) => setOutputToken(e.target.innerHTML)} >TKN2</Dropdown.Item>
@@ -198,7 +201,7 @@ const Swap = () => {
               {isSwapping ? (
                 <Spinner animation="border" style={{ display: 'block', margin: '0 auto' }} />
               ) : (
-                <Button type='submit'>Swap</Button>
+                <Button type='submit' className="button">Swap</Button>
               )}
 
               <Form.Text muted>
@@ -209,7 +212,7 @@ const Swap = () => {
           </Form>
         ) : (
           <p
-            className='d-flex justify-content-center align-items-center'
+            className='d-flex justify-content-center align-items-center swap-connect-wallet-text'
             style={{ height: '350px' }}
           >
             Please connect wallet.
