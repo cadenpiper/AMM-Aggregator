@@ -21,10 +21,6 @@ contract Aggregator is ReentrancyGuard {
     mapping(address => uint256) public userDeposits;
     uint256 public totalValueDeposited;
 
-    uint256 public totalShares;
-    mapping(address => uint256) public shares;
-    uint256 constant PRECISION = 10**18;
-
     event ExecuteSwap(
     	address user,
     	address tokenIn,
@@ -51,25 +47,11 @@ contract Aggregator is ReentrancyGuard {
 		owner = msg.sender;
 	}
 
-	// Determines how much of token1 to deposit with token2
-    function calculateToken1Deposit(uint256 _token2Amount)
-        public
-        view
-        returns (uint256 token1Amount)
-    {
-        token1Amount = (token1Balance * _token2Amount) / token2Balance;
-    }
+	////////////////////////////////////////////////////////////////////////////////
+    // ADDING LIQUIDITY
+    ////////////////////////////////////////////////////////////////////////////////
 
-	// Determines how much of token2 to deposit with token1
-    function calculateToken2Deposit(uint256 _token1Amount)
-        public
-        view
-        returns (uint256 token2Amount)
-    {
-        token2Amount = (token2Balance * _token1Amount) / token1Balance;
-    }
-
-    function _recordDeposit(address _user, uint256 _token1Amount, uint256 _token2Amount) internal {
+   	function _recordDeposit(address _user, uint256 _token1Amount, uint256 _token2Amount) internal {
     	uint256 totalDepositAmount = _token1Amount + _token2Amount;
 
     	userDeposits[_user] += totalDepositAmount;
@@ -108,86 +90,43 @@ contract Aggregator is ReentrancyGuard {
 
         // Disperse liquidity to amms
         _disperseLiquidity(_token1Amount, _token2Amount);
-
-        // Issue Shares
-        uint256 share;
-
-        // If first time adding liquidity, make share 100
-        if (totalShares == 0) {
-            share = 100 * PRECISION;
-        } else {
-            uint256 share1 = (totalShares * _token1Amount) / token1Balance;
-            uint256 share2 = (totalShares * _token2Amount) / token2Balance;
-            require(
-                (share1 / 10**3) == (share2 / 10**3),
-                "must provide equal token amounts"
-            );
-            share = share1;
-        }
-
-        // Manage Pool
-        token1Balance += _token1Amount;
-        token2Balance += _token2Amount;
-        K = token1Balance * token2Balance;
-
-        // Updates shares
-        totalShares += share;
-        shares[msg.sender] += share;
     }
 
-    // Determines how many tokens will be withdrawn
-    function calculateWithdrawalAmount(uint256 _share)
-        public
-        view
-        returns(uint256 token1Amount, uint256 token2Amount)
+    ////////////////////////////////////////////////////////////////////////////////
+    // CALCULATING TOKEN DEPOSITS
+    ////////////////////////////////////////////////////////////////////////////////
+
+    function calculateToken1Deposit(uint256 _token2Amount)
+    	public
+    	view
+    	returns (uint256 token1Deposit)
     {
-        require(_share <= totalShares, "Must be less than total shares");
+    	uint256 amm1Token1Deposit = amm1.calculateToken1Deposit((_token2Amount / 2));
+    	uint256 amm2Token1Deposit = amm2.calculateToken1Deposit((_token2Amount / 2));
 
-        uint256 shareAmm1 = (_share * amm1.totalShares() / totalShares);
-    	uint256 shareAmm2 = (_share * amm2.totalShares() / totalShares);
-
-        token1Amount = (shareAmm1 * token1Balance) / totalShares;
-        token2Amount = (shareAmm2 * token2Balance) / totalShares;
+    	token1Deposit = amm1Token1Deposit + amm2Token1Deposit;
     }
 
-    function _recollectLiquidity(uint256 _share) internal {
-
-    	// Withdraw proportionate shares from both AMMs
-    	uint256 shareAmm1 = (_share * amm1.totalShares() / totalShares);
-    	uint256 shareAmm2 = (_share * amm2.totalShares() / totalShares);
-
-    	(uint256 token1AmountAmm1, uint256 token2AmountAmm1) = amm1.removeLiquidity(shareAmm1);
-    	(uint256 token1AmountAmm2, uint256 token2AmountAmm2) = amm2.removeLiquidity(shareAmm2);
-
-    	token1Balance -= (token1AmountAmm1 + token1AmountAmm2);
-    	token2Balance -= (token2AmountAmm1 + token2AmountAmm2);
-    }
-
-    // Removes liquidity from the pool
-    function removeLiquidity(uint256 _share)
-        external
-        nonReentrant
-        returns (uint256 token1Amount, uint256 token2Amount)
+    function calculateToken2Deposit(uint256 _token1Amount)
+    	public
+    	view
+    	returns (uint256 token2Deposit)
     {
-        require(
-            _share <= shares[msg.sender],
-            "Cannot withdraw more shares than you have"
-        );
+    	uint256 amm1Token2Deposit = amm1.calculateToken2Deposit((_token1Amount / 2));
+    	uint256 amm2Token2Deposit = amm2.calculateToken2Deposit((_token1Amount / 2));
 
-        (token1Amount, token2Amount) = calculateWithdrawalAmount(_share);
-
-        _recollectLiquidity(_share);
-
-        shares[msg.sender] -= _share;
-        totalShares -= _share;
-
-        token1Balance -= token1Amount;
-        token2Balance -= token2Amount;
-        K = token1Balance * token2Balance;
-
-        token1.transfer(msg.sender, token1Amount);
-        token2.transfer(msg.sender, token2Amount);
+    	token2Deposit = amm1Token2Deposit + amm2Token2Deposit;
     }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // REMOVING LIQUIDITY
+    ////////////////////////////////////////////////////////////////////////////////
+
+
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // SWAPPING
+    ////////////////////////////////////////////////////////////////////////////////
 
 	// Determines best token2 output with token1 input
 	function getBestToken1Price(uint256 _token1Amount)

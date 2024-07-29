@@ -154,7 +154,7 @@
       "outputs": [
         {
           "internalType": "uint256",
-          "name": "token1Amount",
+          "name": "token1Deposit",
           "type": "uint256"
         }
       ],
@@ -173,31 +173,7 @@
       "outputs": [
         {
           "internalType": "uint256",
-          "name": "token2Amount",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_share",
-          "type": "uint256"
-        }
-      ],
-      "name": "calculateWithdrawalAmount",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "token1Amount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "token2Amount",
+          "name": "token2Deposit",
           "type": "uint256"
         }
       ],
@@ -327,49 +303,6 @@
       "type": "function"
     },
     {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_share",
-          "type": "uint256"
-        }
-      ],
-      "name": "removeLiquidity",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "token1Amount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "token2Amount",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "shares",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
       "inputs": [],
       "name": "token1",
       "outputs": [
@@ -411,19 +344,6 @@
     {
       "inputs": [],
       "name": "token2Balance",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "totalShares",
       "outputs": [
         {
           "internalType": "uint256",

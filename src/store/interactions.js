@@ -88,6 +88,26 @@ export const loadBalances = async (aggregator, tokens, account, dispatch) => {
 }
 
 // -----------------------------
+// Add Liquidity
+
+export const addLiquidity = async (provider, aggregator, tokens, amounts, dispatch) => {
+
+	const signer = await provider.getSigner()
+
+	let transaction
+
+	transaction = await tokens[0].connect(signer).approve(aggregator.address, amounts[0])
+	await transaction.wait()
+
+	transaction = await tokens[1].connect(signer).approve(aggregator.address, amounts[1])
+	await transaction.wait()
+
+	transaction = await aggregator.connect(signer).addLiquidity(amounts[0], amounts[1])
+	await transaction.wait()
+
+}
+
+// -----------------------------
 // Swap
 
 export const swap = async (provider, aggregator, token, symbol, amount, dispatch) => {

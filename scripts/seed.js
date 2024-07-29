@@ -50,7 +50,7 @@ async function main() {
   await transaction.wait()
 
   
-  let amount = tokens(100)
+  let amount = tokens(10000)
   console.log(`\nFetching amms...\n`)
 
   // Fetch AMMs
@@ -58,16 +58,6 @@ async function main() {
   console.log(`Amm1 fetched: ${amm1.address}\n`)
   const amm2 = await ethers.getContractAt('AMM', config[chainId].amm2.address)
   console.log(`Amm2 fetched: ${amm2.address}\n\n`)
-
-  transaction = await token1.connect(deployer).approve(amm1.address, amount)
-  await transaction.wait()
-  transaction = await token2.connect(deployer).approve(amm1.address, amount)
-  await transaction.wait()
-  transaction = await token1.connect(deployer).approve(amm2.address, amount)
-  await transaction.wait()
-  transaction = await token2.connect(deployer).approve(amm2.address, amount)
-  await transaction.wait()
-
 
   // Fetch aggregator
   console.log(`\nFetching aggregator...\n`)
@@ -80,23 +70,11 @@ async function main() {
   transaction = await token2.connect(deployer).approve(aggregator.address, amount)
   await transaction.wait()
 
-
-  /////////////////////////////////////////////////
-  // Deployer adds liquidity to amms
-
-  console.log(`\nAdding liquidity to amms...`)
-  transaction = await amm1.connect(deployer).addLiquidity(amount, amount)
-  await transaction.wait()
-  transaction = await amm2.connect(deployer).addLiquidity(amount, amount)
-  await transaction.wait()
-
-
   /////////////////////////////////////////////////
   // Deployer adds liquidity to aggregator
 
   console.log(`\nAdding liquidity to aggregator...\n\n`)
   transaction = await aggregator.connect(deployer).addLiquidity(amount, amount)
-
 
   /////////////////////////////////////////////////
   // Swapping tokens
