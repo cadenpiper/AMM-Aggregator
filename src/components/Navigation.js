@@ -40,7 +40,7 @@ const Navigation = () => {
         height="40"
         className="d-inline-block align-top mx-3"
       />
-      <Navbar.Brand href="#" className="navbar-brand-custom">Aggregator</Navbar.Brand>
+      <Navbar.Brand href="#" className="navbar-brand-custom">AMM Swap Aggregator</Navbar.Brand>
       <Navbar.Toggle ario-controls="nav" />
       <Navbar.Collapse id="nav" className="justify-content-end">
 
@@ -55,7 +55,7 @@ const Navigation = () => {
           >
             <option value="0" disabled>Select Network</option>
             <option value="0x7A69">Localhost</option>
-            <option value="0x1">Ethereum</option>
+            <option value="0xaa36a7">Sepolia</option>
           </Form.Select>
 
           {account ? (
