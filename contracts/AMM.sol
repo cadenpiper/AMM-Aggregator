@@ -34,7 +34,9 @@ contract AMM {
         token2 = _token2;
     }
 
-    function addLiquidity(uint256 _token1Amount, uint256 _token2Amount) external {
+    function addLiquidity(uint256 _token1Amount, uint256 _token2Amount)
+        external
+    {
         // Deposit Tokens
         require(
             token1.transferFrom(msg.sender, address(this), _token1Amount),
@@ -45,7 +47,6 @@ contract AMM {
             "failed to transfer token 2"
         );
 
-        // Issue Shares
         uint256 share;
 
         // If first time adding liquidity, make share 100
@@ -209,5 +210,5 @@ contract AMM {
 
         token1.transfer(msg.sender, token1Amount);
         token2.transfer(msg.sender, token2Amount);
-    }    
+    }
 }

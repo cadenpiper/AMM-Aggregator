@@ -14,21 +14,12 @@ contract Aggregator is ReentrancyGuard {
 	AMM public amm2;
 	address public owner;
 
-	uint256 public token1Balance;
-    uint256 public token2Balance;
-    uint256 public K;
-
-    mapping(address => uint256) public userDeposits;
-    uint256 public totalValueDeposited;
-
     event ExecuteSwap(
     	address user,
     	address tokenIn,
     	uint256 tokenInAmount,
     	address tokenOut,
     	uint256 tokenOutAmount,
-    	uint256 token1Balance,
-    	uint256 token2Balance,
     	uint256 timestamp
     );
 
@@ -46,83 +37,6 @@ contract Aggregator is ReentrancyGuard {
 		amm2 = _amm2;
 		owner = msg.sender;
 	}
-
-	////////////////////////////////////////////////////////////////////////////////
-    // ADDING LIQUIDITY
-    ////////////////////////////////////////////////////////////////////////////////
-
-   	function _recordDeposit(address _user, uint256 _token1Amount, uint256 _token2Amount) internal {
-    	uint256 totalDepositAmount = _token1Amount + _token2Amount;
-
-    	userDeposits[_user] += totalDepositAmount;
-    	totalValueDeposited += totalDepositAmount;
-    }
-
-    function _disperseLiquidity(uint256 _token1Amount, uint256 _token2Amount) internal {
-    	uint256 dispersedToken1Amount = _token1Amount / 2;
-    	uint256 dispersedToken2Amount = _token2Amount / 2;
-
-    	token1.approve(address(amm1), dispersedToken1Amount);
-    	token2.approve(address(amm1), dispersedToken2Amount);
-    	token1.approve(address(amm2), dispersedToken1Amount);
-    	token2.approve(address(amm2), dispersedToken2Amount);
-
-    	amm1.addLiquidity(dispersedToken1Amount, dispersedToken2Amount);
-    	amm2.addLiquidity(dispersedToken1Amount, dispersedToken2Amount);
-    }
-
-    function addLiquidity(uint256 _token1Amount, uint256 _token2Amount)
-    	external
-    	nonReentrant
-    {
-        // Deposit tokens
-        require(
-            token1.transferFrom(msg.sender, address(this), _token1Amount),
-            "failed to transfer token 1"
-        );
-        require(
-            token2.transferFrom(msg.sender, address(this), _token2Amount),
-            "failed to transfer token 2"
-        );
-
-        // Record users deposit
-        _recordDeposit(msg.sender, _token1Amount, _token2Amount);
-
-        // Disperse liquidity to amms
-        _disperseLiquidity(_token1Amount, _token2Amount);
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // CALCULATING TOKEN DEPOSITS
-    ////////////////////////////////////////////////////////////////////////////////
-
-    function calculateToken1Deposit(uint256 _token2Amount)
-    	public
-    	view
-    	returns (uint256 token1Deposit)
-    {
-    	uint256 amm1Token1Deposit = amm1.calculateToken1Deposit((_token2Amount / 2));
-    	uint256 amm2Token1Deposit = amm2.calculateToken1Deposit((_token2Amount / 2));
-
-    	token1Deposit = amm1Token1Deposit + amm2Token1Deposit;
-    }
-
-    function calculateToken2Deposit(uint256 _token1Amount)
-    	public
-    	view
-    	returns (uint256 token2Deposit)
-    {
-    	uint256 amm1Token2Deposit = amm1.calculateToken2Deposit((_token1Amount / 2));
-    	uint256 amm2Token2Deposit = amm2.calculateToken2Deposit((_token1Amount / 2));
-
-    	token2Deposit = amm1Token2Deposit + amm2Token2Deposit;
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // REMOVING LIQUIDITY
-    ////////////////////////////////////////////////////////////////////////////////
-
-
 
     ////////////////////////////////////////////////////////////////////////////////
     // SWAPPING
@@ -188,8 +102,6 @@ contract Aggregator is ReentrancyGuard {
 	    	_token1Amount,
 	    	address(token2),
 	    	expectedToken2Output,
-	    	token1Balance,
-	    	token2Balance,
 	    	block.timestamp
 		);
 
@@ -224,8 +136,6 @@ contract Aggregator is ReentrancyGuard {
 	    	_token2Amount,
 	    	address(token1),
 	    	expectedToken1Output,
-	    	token1Balance,
-	    	token2Balance,
 	    	block.timestamp
 		);
 

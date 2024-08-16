@@ -13,10 +13,11 @@ async function main() {
   console.log(`Fetching accounts and network...\n\n`)
   const accounts = await ethers.getSigners()
   const deployer = accounts[0]
-  const investor1 = accounts[1]
-  const investor2 = accounts[2]
-  const investor3 = accounts[3]
-  const investor4 = accounts[4]
+  const liquidityProvider = accounts[1]
+  const investor1 = accounts[2]
+  const investor2 = accounts[3]
+  const investor3 = accounts[4]
+  const investor4 = accounts[5]
 
   // Fetch network
   const { chainId } = await ethers.provider.getNetwork()
@@ -29,9 +30,15 @@ async function main() {
   console.log(`Token2 fetched: ${token2.address}\n\n`)
 
   /////////////////////////////////////////////////
-  // Distribute tokens to invesors
+  // Distribute tokens to invesors and liquidity provider
 
   let transaction
+
+  // Send token1 and token2 to liquidity provider
+  transaction = await token1.connect(deployer).transfer(liquidityProvider.address, tokens(50000))
+  await transaction.wait()
+  transaction = await token2.connect(deployer).transfer(liquidityProvider.address, tokens(50000))
+  await transaction.wait()
 
   // Send token1 to investor1
   transaction = await token1.connect(deployer).transfer(investor1.address, tokens(10))
@@ -50,7 +57,7 @@ async function main() {
   await transaction.wait()
 
   
-  let amount = tokens(10000)
+
   console.log(`\nFetching amms...\n`)
 
   // Fetch AMMs
@@ -59,25 +66,37 @@ async function main() {
   const amm2 = await ethers.getContractAt('AMM', config[chainId].amm2.address)
   console.log(`Amm2 fetched: ${amm2.address}\n\n`)
 
+  /////////////////////////////////////////////////
+  // Add Liquidity to AMMs
+  console.log(`\nAdding liquidity to AMMs...\n`)
+
+  // Approve amms
+  transaction = await token1.connect(liquidityProvider).approve(amm1.address, tokens(10000))
+  await transaction.wait()
+  transaction = await token2.connect(liquidityProvider).approve(amm1.address, tokens(10000))
+  await transaction.wait()
+  transaction = await token1.connect(liquidityProvider).approve(amm2.address, tokens(10000))
+  await transaction.wait()
+  transaction = await token2.connect(liquidityProvider).approve(amm2.address, tokens(10000))
+  await transaction.wait()
+
+  transaction = await amm1.connect(liquidityProvider).addLiquidity(tokens(10000), tokens(10000))
+  await transaction.wait()
+  transaction = await amm2.connect(liquidityProvider).addLiquidity(tokens(10000), tokens(10000))
+  await transaction.wait()
+
+
+
   // Fetch aggregator
   console.log(`\nFetching aggregator...\n`)
 
   const aggregator = await ethers.getContractAt('Aggregator', config[chainId].aggregator.address)
   console.log(`Aggregator fetched: ${aggregator.address}\n\n`)
 
-  transaction = await token1.connect(deployer).approve(aggregator.address, amount)
-  await transaction.wait()
-  transaction = await token2.connect(deployer).approve(aggregator.address, amount)
-  await transaction.wait()
+
 
   /////////////////////////////////////////////////
-  // Deployer adds liquidity to aggregator
-
-  console.log(`\nAdding liquidity to aggregator...\n\n`)
-  transaction = await aggregator.connect(deployer).addLiquidity(amount, amount)
-
-  /////////////////////////////////////////////////
-  // Swapping tokens
+  // Swap tokens
 
   // investor1 swaps token1 for token2
   console.log(`\nInvestor 1 swaps...\n`)

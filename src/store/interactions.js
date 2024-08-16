@@ -3,7 +3,7 @@ import { ethers } from 'ethers'
 import { setProvider, setNetwork, setAccount } from './reducers/provider'
 import { setContracts, setSymbols, balancesLoaded } from './reducers/tokens'
 import { setAmmContracts, sharesLoadedAmm, setBalances } from './reducers/amms'
-import { setContract, sharesLoaded, swapRequest, swapSuccess, swapFail } from './reducers/aggregator'
+import { setContract, swapRequest, swapSuccess, swapFail } from './reducers/aggregator'
 
 import TOKEN_ABI from '../abis/Token.json';
 import AMM_ABI from '../abis/AMM.json';
@@ -70,7 +70,7 @@ export const loadAggregator = async (provider, chainId, dispatch) => {
 }
 
 // -----------------------------
-// Load Balances & Shares
+// Load Balances
 
 export const loadBalances = async (aggregator, tokens, account, dispatch) => {
 	const balance1 = await tokens[0].balanceOf(account)
@@ -80,31 +80,6 @@ export const loadBalances = async (aggregator, tokens, account, dispatch) => {
 		ethers.utils.formatUnits(balance1.toString(), 'ether'),
 		ethers.utils.formatUnits(balance2.toString(), 'ether')
 	]))
-
-	const shares = await aggregator.shares(account)
-	dispatch(sharesLoaded(ethers.utils.formatUnits(shares.toString(), 'ether')))
-
-	// Load amm balances and shares
-}
-
-// -----------------------------
-// Add Liquidity
-
-export const addLiquidity = async (provider, aggregator, tokens, amounts, dispatch) => {
-
-	const signer = await provider.getSigner()
-
-	let transaction
-
-	transaction = await tokens[0].connect(signer).approve(aggregator.address, amounts[0])
-	await transaction.wait()
-
-	transaction = await tokens[1].connect(signer).approve(aggregator.address, amounts[1])
-	await transaction.wait()
-
-	transaction = await aggregator.connect(signer).addLiquidity(amounts[0], amounts[1])
-	await transaction.wait()
-
 }
 
 // -----------------------------
