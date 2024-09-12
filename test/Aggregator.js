@@ -11,7 +11,9 @@ const shares = ether
 describe('Aggregator', () => {
 	let accounts,
 			deployer,
-			investor1
+			investor1,
+			investor2,
+			user
 
 	let token1,
 			token2,
@@ -27,6 +29,8 @@ describe('Aggregator', () => {
 		deployer = accounts[0]
 		liquidityProvider = accounts[1]
 		investor1 = accounts[2]
+		investor2 = accounts[3]
+		user = accounts[4]
 
 		// Deploy token contracts
 		const Token = await ethers.getContractFactory('Token')
@@ -62,6 +66,10 @@ describe('Aggregator', () => {
     await transaction.wait()
     transaction = await token2.connect(deployer).transfer(liquidityProvider.address, tokens(400000))
     await transaction.wait()
+    transaction = await token1.connect(deployer).transfer(aggregator.address, tokens(100000))
+    await transaction.wait()
+    transaction = await token2.connect(deployer).transfer(aggregator.address, tokens(100000))
+    await transaction.wait()
 	})
 
 	describe('Deployment', () => {
@@ -77,6 +85,13 @@ describe('Aggregator', () => {
 		it('tracks amm addresses', async () => {
 			expect(await aggregator.amm1()).to.equal(amm1.address)
 			expect(await aggregator.amm2()).to.equal(amm2.address)
+		})
+
+		it('tracks deployer balances', async () => {
+			const token1Balance = await token1.balanceOf(deployer.address)
+			const token2Balance = await token2.balanceOf(deployer.address)
+
+			expect(token1Balance && token2Balance).to.equal(tokens(100000))
 		})
 	})
 
@@ -246,6 +261,32 @@ describe('Aggregator', () => {
           estimate,
           (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp
       )
+		})
+	})
+
+	describe('Giving Test Tokens', () => {
+
+		it('distributes test tokens', async () => {
+			// check user balance before
+			const balanceBefore = await token1.balanceOf(user.address)
+			const balanceBefore2 = await token2.balanceOf(user.address)
+
+			expect(balanceBefore).to.equal(0)
+			expect(balanceBefore2).to.equal(0)
+
+			let transaction = await aggregator.connect(user).distributeTokens()
+			await transaction.wait()
+
+			const balanceAfter = await token1.balanceOf(user.address)
+			const balanceAfter2 = await token2.balanceOf(user.address)
+			
+			expect(balanceAfter).to.equal(tokens(100))
+			expect(balanceAfter2).to.equal(tokens(100))
+		})
+
+		it('checks user balances before distributing', async () => {
+			// will revert if user balance is > 1000
+			await expect(aggregator.connect(investor1).distributeTokens()).to.be.reverted
 		})
 	})
 })

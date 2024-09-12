@@ -10,6 +10,11 @@ export const aggregator = createSlice({
 			isSwapping: false,
 			isSuccess: false,
 			transactionHash: null
+		},
+		distributing: {
+			isDistributing: false,
+			isSuccess: false,
+			transactionHash: null
 		}
 	},
 	reducers: {
@@ -30,10 +35,33 @@ export const aggregator = createSlice({
 			state.swapping.isSwapping = false
 			state.swapping.isSuccess = false
 			state.swapping.transactionHash = null
-		}
+		},
+		faucetRequest: (state, action) => {
+			state.distributing.isDistributing = true
+			state.distributing.isSuccess = false
+			state.distributing.transactionHash = null
+		},
+		faucetSuccess: (state, action) => {
+			state.distributing.isDistributing = false
+			state.distributing.isSuccess = true
+			state.distributing.transactionHash = action.payload
+		},
+		faucetFail: (state, action) => {
+			state.distributing.isDistributing = false
+			state.distributing.isSuccess = false
+			state.distributing.transactionHash = null
+		},
 	}
 })
 
-export const { setContract, swapRequest, swapSuccess, swapFail } = aggregator.actions;
+export const {
+	setContract,
+	swapRequest,
+	swapSuccess,
+	swapFail,
+	faucetRequest,
+	faucetSuccess,
+	faucetFail
+} = aggregator.actions;
 
 export default aggregator.reducer;

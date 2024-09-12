@@ -154,3 +154,23 @@ body {
 .swap-connect-wallet-text {
   color: var(--text-color);
 }
+
+.nav-pills .nav-link {
+  background-color: var(--secondary-color);
+  color: #fff;
+  border-radius: 3px;
+  margin: 0 10px;
+  padding: 0.5rem 1rem;
+}
+
+.nav-pills .nav-link.active {
+  background-color: var(--secondary-color);
+  color: #fff;
+}
+
+.nav-pills .nav-link:hover {
+  background-color: var(--secondary-color);
+  opacity: 0.8;
+  color: #fff;
+}
+

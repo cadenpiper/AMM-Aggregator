@@ -3,7 +3,15 @@ import { ethers } from 'ethers'
 import { setProvider, setNetwork, setAccount } from './reducers/provider'
 import { setContracts, setSymbols, balancesLoaded } from './reducers/tokens'
 import { setAmmContracts, sharesLoadedAmm, setBalances } from './reducers/amms'
-import { setContract, swapRequest, swapSuccess, swapFail } from './reducers/aggregator'
+import {
+	setContract,
+	swapRequest,
+	swapSuccess,
+	swapFail,
+	faucetRequest,
+	faucetSuccess,
+	faucetFail
+} from './reducers/aggregator'
 
 import TOKEN_ABI from '../abis/Token.json';
 import AMM_ABI from '../abis/AMM.json';
@@ -70,6 +78,25 @@ export const loadAggregator = async (provider, chainId, dispatch) => {
 }
 
 // -----------------------------
+// Faucet
+
+export const faucet = async (provider, aggregator, account, dispatch) => {
+	try {
+		dispatch(faucetRequest())
+
+		const signer = await provider.getSigner()
+
+		let transaction = await aggregator.connect(signer).distributeTokens()
+		await transaction.wait()
+
+		dispatch(faucetSuccess(transaction.hash))
+	} catch (error) {
+		console.log(error)
+		dispatch(faucetFail())
+	}
+}
+
+// -----------------------------
 // Load Balances
 
 export const loadBalances = async (aggregator, tokens, account, dispatch) => {
@@ -108,7 +135,6 @@ export const swap = async (provider, aggregator, token, symbol, amount, dispatch
 		dispatch(swapSuccess(transaction.hash))
 
 	} catch (error) {
-
 		dispatch(swapFail())
 	}
 }

@@ -9,6 +9,8 @@ import '../styles.css'
 // Components
 import Navigation from './Navigation'
 import Swap from './Swap'
+import Faucet from './Faucet'
+import Tabs from './Tabs'
 
 import {
   loadProvider,
@@ -57,8 +59,11 @@ function App() {
 
         <hr />
 
+        <Tabs />
+
         <Routes>
           <Route exact path='/' element={<Swap />} />
+          <Route exact path='/faucet' element={<Faucet />} />
         </Routes>
 
       </HashRouter>

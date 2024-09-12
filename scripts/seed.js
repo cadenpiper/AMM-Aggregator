@@ -6,7 +6,6 @@ const tokens = (n) => {
 }
 
 const ether = tokens
-const shares = ether
 
 async function main() {
   // Fetch accunts
@@ -56,7 +55,7 @@ async function main() {
   transaction = await token2.connect(deployer).transfer(investor4.address, tokens(10))
   await transaction.wait()
 
-  
+
 
   console.log(`\nFetching amms...\n`)
 
@@ -93,7 +92,11 @@ async function main() {
   const aggregator = await ethers.getContractAt('Aggregator', config[chainId].aggregator.address)
   console.log(`Aggregator fetched: ${aggregator.address}\n\n`)
 
-
+  // Transfer tokens to aggregator
+  transaction = await token1.connect(deployer).transfer(aggregator.address, tokens(10000))
+  await transaction.wait()
+  transaction = await token2.connect(deployer).transfer(aggregator.address, tokens(10000))
+  await transaction.wait()
 
   /////////////////////////////////////////////////
   // Swap tokens

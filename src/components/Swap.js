@@ -129,7 +129,7 @@ const Swap = () => {
 
   return(
     <div className="swap-container">
-      <Card style={{ maxWidth: '450px' }} className='mx-auto px-4 swap-card'>
+      <Card style={{ maxWidth: '450px', marginTop: '-35px' }} className='mx-auto px-4 swap-card'>
         {account ? (
           <Form onSubmit={swapHandler} style={{ maxWidth: '450px', margin: '50px auto' }}>
             <Row className='my-3'>

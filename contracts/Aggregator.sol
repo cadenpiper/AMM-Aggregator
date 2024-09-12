@@ -14,6 +14,8 @@ contract Aggregator is ReentrancyGuard {
 	AMM public amm2;
 	address public owner;
 
+	uint256 public decimals = 18;
+
     event ExecuteSwap(
     	address user,
     	address tokenIn,
@@ -36,6 +38,14 @@ contract Aggregator is ReentrancyGuard {
 		amm1 = _amm1;
 		amm2 = _amm2;
 		owner = msg.sender;
+	}
+
+	function distributeTokens() external {
+		require(token1.balanceOf(msg.sender) < 1000, "User reached max balance for receiving tokens");
+		require(token2.balanceOf(msg.sender) < 1000, "User reached max balance for receiving tokens");
+
+		token1.transfer(msg.sender, 100 * (10**decimals));
+		token2.transfer(msg.sender, 100 * (10**decimals));
 	}
 
     ////////////////////////////////////////////////////////////////////////////////
