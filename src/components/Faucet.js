@@ -56,8 +56,19 @@ const Faucet = () => {
             <hr/>
 
             <Row>
-              <p><strong>Token1 Balance:</strong> {balances[0]}</p>
-              <p><strong>Token2 Balance:</strong> {balances[1]}</p>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0px' }}>
+                <p style={{ marginBottom: '-7px' }}><strong>Token1 Balance:</strong> {balances[0]}</p>
+                <Form.Text muted>
+                  Token1 address: {tokens[0].address}
+                </Form.Text>
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0px', marginTop: '20px' }}>
+                <p style={{ marginBottom: '-7px' }}><strong>Token2 Balance:</strong> {balances[1]}</p>
+                <Form.Text muted>
+                  Token2 address: {tokens[1].address}
+                </Form.Text>
+              </div>
             </Row>
           </Form>
         ) : (
