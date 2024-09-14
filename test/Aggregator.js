@@ -57,7 +57,7 @@ describe('Aggregator', () => {
     )
     await aggregator.deployed()
    
-    // Transfer tokens to investor #1 and liquidity provider
+    // Transfer tokens to investor #1, liquidity provider, and aggregator
     transaction = await token1.connect(deployer).transfer(investor1.address, tokens(400000))
     await transaction.wait()
     transaction = await token2.connect(deployer).transfer(investor1.address, tokens(400000))
@@ -285,8 +285,34 @@ describe('Aggregator', () => {
 		})
 
 		it('checks user balances before distributing', async () => {
+			// transfer deployer tokens to another user for testing
+			let transaction = await token1.connect(deployer).transfer(investor1.address, tokens(99990))
+			await transaction.wait()
+			transaction = await token2.connect(deployer).transfer(investor1.address, tokens(99990))
+			await transaction.wait()
+			expect(await token1.balanceOf(deployer.address)).to.equal(tokens(10))
+			expect(await token2.balanceOf(deployer.address)).to.equal(tokens(10))
+			
+			transaction = await aggregator.connect(deployer).distributeTokens()
+			await transaction.wait()
+			expect(await token1.balanceOf(deployer.address)).to.equal(tokens(110))
+			expect(await token2.balanceOf(deployer.address)).to.equal(tokens(110))
+
+			transaction = await aggregator.connect(deployer).distributeTokens()
+			await transaction.wait()
+			expect(await token1.balanceOf(deployer.address)).to.equal(tokens(210))
+			expect(await token2.balanceOf(deployer.address)).to.equal(tokens(210))
+
+			// transfer max tokens allowed by distributeTokens function back to deployer
+			transaction = await token1.connect(investor1).transfer(deployer.address, tokens(890))
+			await transaction.wait()
+			transaction = await token2.connect(investor1).transfer(deployer.address, tokens(890))
+			await transaction.wait()
+			expect(await token1.balanceOf(deployer.address)).to.equal(tokens(1100))
+			expect(await token2.balanceOf(deployer.address)).to.equal(tokens(1100))
+
 			// will revert if user balance is > 1000
-			await expect(aggregator.connect(investor1).distributeTokens()).to.be.reverted
+			transaction = await expect(aggregator.connect(investor1).distributeTokens()).to.be.reverted
 		})
 	})
 })

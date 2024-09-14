@@ -40,12 +40,19 @@ contract Aggregator is ReentrancyGuard {
 		owner = msg.sender;
 	}
 
-	function distributeTokens() external {
-		require(token1.balanceOf(msg.sender) < 1000, "User reached max balance for receiving tokens");
-		require(token2.balanceOf(msg.sender) < 1000, "User reached max balance for receiving tokens");
+	////////////////////////////////////////////////////////////////////////////////
+    // DISTRIBUTE TOKENS TO USERS FOR TESTING
+    ////////////////////////////////////////////////////////////////////////////////
 
-		token1.transfer(msg.sender, 100 * (10**decimals));
-		token2.transfer(msg.sender, 100 * (10**decimals));
+	function distributeTokens() external nonReentrant {
+		uint256 value = 10**decimals;
+		require(token1.balanceOf(address(this)) > 1000 * value, "Contract does not have enough funds");
+		require(token2.balanceOf(address(this)) > 1000 * value, "Contract does not have enough funds");
+		require(token1.balanceOf(msg.sender) < 1000 * value, "User reached max balance for receiving tokens");
+		require(token2.balanceOf(msg.sender) < 1000 * value, "User reached max balance for receiving tokens");
+
+		token1.transfer(msg.sender, 100 * value);
+		token2.transfer(msg.sender, 100 * value);
 	}
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -93,15 +100,14 @@ contract Aggregator is ReentrancyGuard {
 		(uint256 expectedToken2Output, address amm) = getBestToken1Price(_token1Amount);
 		uint256 token2Output;
 
-		token1.approve(address(this), _token1Amount);
 		token1.transferFrom(msg.sender, address(this), _token1Amount);
 
+		token1.approve(address(amm), _token1Amount);
+
 		if (amm == address(amm1)) {
-			token1.approve(address(amm1), _token1Amount);
 			token2Output = amm1.swapToken1(_token1Amount);
 			token2.transfer(msg.sender, token2Output);
 		} else {
-			token1.approve(address(amm2), _token1Amount);
 			token2Output = amm2.swapToken1(_token1Amount);
 			token2.transfer(msg.sender, token2Output);
 		}
@@ -111,7 +117,7 @@ contract Aggregator is ReentrancyGuard {
 	    	address(token1),
 	    	_token1Amount,
 	    	address(token2),
-	    	expectedToken2Output,
+	    	token2Output,
 	    	block.timestamp
 		);
 
@@ -127,15 +133,14 @@ contract Aggregator is ReentrancyGuard {
 		(uint256 expectedToken1Output, address amm) = getBestToken2Price(_token2Amount);
 		uint256 token1Output;
 
-		token2.approve(address(this), _token2Amount);
 		token2.transferFrom(msg.sender, address(this), _token2Amount);
 
+		token2.approve(address(amm), _token2Amount);
+
 		if (amm == address(amm1)) {
-			token2.approve(address(amm1), _token2Amount);
 			token1Output = amm1.swapToken2(_token2Amount);
 			token1.transfer(msg.sender, token1Output);
 		} else {
-			token2.approve(address(amm2), _token2Amount);
 			token1Output = amm2.swapToken2(_token2Amount);
 			token1.transfer(msg.sender, token1Output);
 		}
@@ -145,7 +150,7 @@ contract Aggregator is ReentrancyGuard {
 	    	address(token2),
 	    	_token2Amount,
 	    	address(token1),
-	    	expectedToken1Output,
+	    	token1Output,
 	    	block.timestamp
 		);
 

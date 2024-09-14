@@ -1,6 +1,6 @@
 # AMM Swap Aggregator
 
-This project aggregates the best swap between two amm smart contracts using one token pair. It features a faucet for users to interact with.
+This project aggregates the best swap between two amm smart contracts using one token pair. It also features a faucet for users to interact with.
 
 ## Tools Used
 
