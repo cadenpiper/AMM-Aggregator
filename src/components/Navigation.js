@@ -55,7 +55,8 @@ const Navigation = () => {
           >
             <option value="0" disabled>Select Network</option>
             <option value="0x7A69">Localhost</option>
-            <option value="0xaa36a7">Sepolia</option>
+            <option value="0x14a34">Base Sepolia</option>
+            <option value="0x2105">Base</option>
           </Form.Select>
 
           {account ? (

@@ -16,7 +16,24 @@
       "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9"
     }
   },
-  "11155111": {
+  "84532": {
+    "token1": {
+      "address": ""
+    },
+    "token2": {
+      "address": ""
+    },
+    "amm1": {
+      "address": ""
+    },
+    "amm2": {
+      "address": ""
+    },
+    "aggregator": {
+      "address": ""
+    }
+  },
+  "8453": {
     "token1": {
       "address": ""
     },

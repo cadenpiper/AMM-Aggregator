@@ -7,9 +7,13 @@ module.exports = {
   solidity: "0.8.18",
   networks: {
     localhost: {},
-    sepolia: {
-      url: `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
+    baseSepolia: {
+      url: `https://base-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
       accounts: privateKey.split(",")
-    }
+    },
+    base: {
+      url: `https://base-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
+      accounts: privateKey.split(",")
+    },
   }
 };
