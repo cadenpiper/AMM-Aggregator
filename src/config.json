@@ -18,19 +18,19 @@
   },
   "84532": {
     "token1": {
-      "address": ""
+      "address": "0xEAbE548d5048F8ce6A2351bAe1C9BaEb56e414bE"
     },
     "token2": {
-      "address": ""
+      "address": "0xa96E47A6f30426F05D99c85FdBc6514cCeE10282"
     },
     "amm1": {
-      "address": ""
+      "address": "0xEb037D8C8BE9F1DE724d023a3688F21380e5E598"
     },
     "amm2": {
-      "address": ""
+      "address": "0x3ef5509e94E2EbE705fFF71EeaF326787CEA824b"
     },
     "aggregator": {
-      "address": ""
+      "address": "0xF22675de7d3D03dd211aA9ca3661c50b6ED96d55"
     }
   },
   "8453": {

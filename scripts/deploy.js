@@ -55,6 +55,12 @@ async function main() {
   )
   await aggregator.deployed()
   console.log(`Aggregator address: ${aggregator.address}\n`)
+
+  // Give tokens to contract for faucet
+  transaction = await token1.connect(deployer).transfer(aggregator.address, tokens(100000))
+  await transaction.wait()
+  transaction = await token2.connect(deployer).transfer(aggregator.address, tokens(100000))
+  await transaction.wait()
 }
 
 main().catch((error) => {
